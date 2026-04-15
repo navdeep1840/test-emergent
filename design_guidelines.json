@@ -1,0 +1,106 @@
+{
+  "theme": "Light",
+  "archetype": "1 (Organic & Earthy)",
+  "vibe": "Warm, tactile, inviting, yet efficient and structured. A digital translation of a modern, artisanal cafe.",
+  "colors": {
+    "background": "#F9F6F0",
+    "surface": "#FFFFFF",
+    "surface_secondary": "#F3EFE6",
+    "border": "#E5E0D8",
+    "primary": "#E07A5F",
+    "primary_hover": "#D0694E",
+    "secondary": "#8DA399",
+    "text_primary": "#2C2A29",
+    "text_secondary": "#7D756D",
+    "text_inverse": "#FFFFFF",
+    "success": "#6B8E6B",
+    "danger": "#D9534F"
+  },
+  "typography": {
+    "font_family_headings": "'Outfit', sans-serif",
+    "font_family_body": "'IBM Plex Sans', sans-serif",
+    "font_weights": {
+      "light": 300,
+      "regular": 400,
+      "medium": 500,
+      "bold": 700
+    },
+    "hierarchy": {
+      "h1": "text-3xl sm:text-4xl lg:text-5xl tracking-tight font-medium text-[#2C2A29]",
+      "h2": "text-2xl sm:text-3xl tracking-tight font-medium text-[#2C2A29]",
+      "h3": "text-xl sm:text-2xl tracking-tight font-medium text-[#2C2A29]",
+      "h4": "text-lg sm:text-xl font-medium text-[#2C2A29]",
+      "body": "text-base text-[#7D756D]",
+      "small": "text-sm text-[#7D756D]",
+      "overline": "text-xs uppercase tracking-[0.2em] font-bold text-[#8DA399]"
+    }
+  },
+  "layout_and_spacing": {
+    "app_structure": "Sidebar Navigation + Main Content Area",
+    "sidebar": "w-20 xl:w-64 h-screen fixed left-0 top-0 border-r border-[#E5E0D8] bg-[#F9F6F0] flex flex-col z-40",
+    "main_container": "ml-20 xl:ml-64 min-h-screen bg-[#F3EFE6] p-4 sm:p-6 lg:p-8",
+    "pos_grid": "grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8",
+    "pos_menu_area": "col-span-1 lg:col-span-8 flex flex-col gap-6",
+    "pos_bill_area": "col-span-1 lg:col-span-4 sticky top-8 h-[calc(100vh-4rem)]",
+    "menu_items_grid": "grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4",
+    "spacing_philosophy": "Generous internal padding (p-6, p-8) for containers to feel premium. Tight functional gaps (gap-2, gap-4) within actionable lists."
+  },
+  "components": {
+    "menu_card": "Flat #FFFFFF background, 1px solid #E5E0D8 border, rounded-2xl overflow-hidden. NO drop shadow by default. On hover: -translate-y-1, shadow-[0_8px_30px_rgba(44,42,41,0.08)], border-[#E07A5F] transition-all duration-300. Image height max 140px, object-cover.",
+    "bill_panel": "Neumorphic tactile variant. #FFFFFF background, rounded-3xl, border border-[#E5E0D8], shadow-[0_4px_40px_rgba(0,0,0,0.04)]. Must feel like a physical printed receipt container. Internal layout uses Flexbox column with full height, ScrollArea for items, and a fixed bottom section for totals/CTA.",
+    "category_tabs": "Pill-shaped toggles. Inactive: transparent background, text-[#7D756D] hover:bg-[#E5E0D8]/50. Active: bg-[#2C2A29] text-white font-medium shadow-sm.",
+    "quantity_button": "Small rounded-full w-8 h-8 flex items-center justify-center border border-[#E5E0D8] text-[#2C2A29] bg-[#F9F6F0] hover:border-[#E07A5F] hover:text-[#E07A5F] transition-colors.",
+    "primary_cta": "Large, full-width button, bg-[#E07A5F] text-white hover:bg-[#D0694E] rounded-2xl py-6 text-lg font-medium tracking-wide shadow-sm. Active: scale-95 transition-transform.",
+    "table": "Minimalist rows. No vertical borders. Subdued horizontal borders (border-[#E5E0D8]). Header text uppercase, overline style."
+  },
+  "visual_enhancers": {
+    "borders": "Expose the skeleton gently. Use 1px #E5E0D8 borders to separate the header, sidebar, and grid items. Avoid heavy lines.",
+    "radius": "Mixed radii. Large structural containers get rounded-3xl. Inner actionable cards get rounded-2xl. Buttons get rounded-xl or rounded-full.",
+    "motion": "Use Framer Motion. Add AnimatePresence for items entering/leaving the bill (scale 0.95 -> 1, opacity 0 -> 1). Smooth layout transitions when filtering categories."
+  },
+  "accessibility": {
+    "contrast": "Ensure text-[#7D756D] on #FFFFFF passes AA. Primary button #E07A5F with #FFFFFF text passes.",
+    "focus": "focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F6F0] focus-visible:outline-none",
+    "testing": "All interactive elements MUST have data-testid attributes (e.g., data-testid='menu-item-coffee', data-testid='bill-increase-qty', data-testid='checkout-btn', data-testid='nav-history')."
+  },
+  "media": {
+    "images": [
+      {
+        "category": "Cafe Logo Placeholder",
+        "description": "Minimalist round sign on building",
+        "url": "https://images.unsplash.com/photo-1769985090528-5a4da245e9a8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwY2FmZSUyMGxvZ28lMjBzaWdufGVufDB8fHx8MTc3NjIyNjQxMnww&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "category": "Menu Item - Coffee",
+        "description": "Person pouring latte art",
+        "url": "https://images.unsplash.com/photo-1706182834059-e2a4655b2d85?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHwzfHxjb2ZmZWUlMjBsYXR0ZSUyMGFydHxlbnwwfHx8fDE3NzYyMjY0MDF8MA&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "category": "Menu Item - Coffee Alternate",
+        "description": "Latte art in white mug",
+        "url": "https://images.unsplash.com/photo-1629909216781-12218b57d1a6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHw0fHxjb2ZmZWUlMjBsYXR0ZSUyMGFydHxlbnwwfHx8fDE3NzYyMjY0MDF8MA&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "category": "Menu Item - Pastry",
+        "description": "Croissant on a tray",
+        "url": "https://images.unsplash.com/photo-1703016402680-d12e7dc746d9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwzfHxjcm9pc3NhbnQlMjBwYXN0cnl8ZW58MHx8fHwxNzc2MjI2NDAyfDA&ixlib=rb-4.1.0&q=85"
+      },
+      {
+        "category": "Menu Item - Pastry Alternate",
+        "description": "Croissants on marble tray",
+        "url": "https://images.pexels.com/photos/4828339/pexels-photo-4828339.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Build a sidebar layout. Left sidebar for navigation (POS Terminal, Bill History, Menu Management). Right side is the main content area.",
+    "For the POS Terminal view, implement a 12-column bento grid. Left 8 cols for Menu Categories and Items. Right 4 cols for the sticky Bill Generator.",
+    "Use pure HTML/Tailwind for the layout structure. Use Shadcn UI primarily for complex interactables (Dialogs, Tables for History, Forms for Item Management), but heavily customize them to match the Organic & Earthy archetype (remove default shadows, use earthy colors).",
+    "Import and use 'Outfit' font for all headings, tabs, and item titles. Import and use 'IBM Plex Sans' for all numbers, prices, and small body copy.",
+    "Implement Framer Motion for smooth transitions when adding/removing items to the bill.",
+    "Ensure the Bill Panel uses a flex-col layout with a ScrollArea in the middle, so the subtotal/tax/discount and 'Charge' CTA are always fixed at the bottom of the container.",
+    "Do NOT use placeholder text or dummy images. Map the provided URLs to the initial state of the cafe menu items.",
+    "CRITICAL: Add 'data-testid' to EVERY interactable element, including each menu item card, quantity buttons, tabs, and forms.",
+    "Install and use Phosphor Icons (`yarn add @phosphor-icons/react`) instead of Lucide. Use Duotone or Regular weights to match the high-end cafe aesthetic."
+  ]
+}
