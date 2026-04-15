@@ -119,8 +119,8 @@ async def get_categories():
 async def create_menu_item(item: MenuItemCreate):
     doc = item.model_dump()
     result = await app.db.menu_items.insert_one(doc)
-    doc["id"] = str(result.inserted_id)
-    return doc
+    created = await app.db.menu_items.find_one({"_id": result.inserted_id})
+    return serialize_doc(created)
 
 @app.put("/api/menu-items/{item_id}")
 async def update_menu_item(item_id: str, item: MenuItemUpdate):
