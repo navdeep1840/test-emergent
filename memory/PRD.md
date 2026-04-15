@@ -31,6 +31,7 @@ Make a bill generator software for a cafe. Users should be able to add/subtract 
 - [x] Responsive sidebar navigation (Terminal, History, Menu)
 - [x] Organic & Earthy design theme with Outfit + IBM Plex Sans fonts
 - [x] Framer Motion animations for smooth UX
+- [x] **PDF export/download** for bills (from success toast, history table, and bill detail view)
 
 ## API Endpoints
 - GET /api/health - Health check
@@ -42,6 +43,7 @@ Make a bill generator software for a cafe. Users should be able to add/subtract 
 - POST /api/bills - Create a bill
 - GET /api/bills - List all bills
 - GET /api/bills/{id} - Get bill detail
+- GET /api/bills/{id}/pdf - Download bill as PDF
 
 ## Backlog
 - P1: PDF export/download for bills
