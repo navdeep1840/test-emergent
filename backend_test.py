@@ -243,6 +243,80 @@ class CafePOSAPITester:
             }
         )
 
+    def test_bill_pdf_download(self, bill_id):
+        """Test PDF download endpoint - NEW FEATURE"""
+        if not bill_id:
+            print("❌ Cannot test PDF download - no bill ID")
+            return False, {}
+
+        url = f"{self.base_url}/api/bills/{bill_id}/pdf"
+        self.tests_run += 1
+        print(f"\n🔍 Testing Bill PDF Download...")
+        
+        try:
+            response = requests.get(url, timeout=10)
+            
+            success = response.status_code == 200
+            
+            if success:
+                # Check content type
+                content_type = response.headers.get('content-type', '')
+                if 'application/pdf' not in content_type:
+                    success = False
+                    print(f"❌ Failed - Expected content-type application/pdf, got {content_type}")
+                else:
+                    print(f"✅ Content-type check passed: {content_type}")
+                
+                # Check if it's actually a PDF by looking for PDF header
+                if success and response.content.startswith(b'%PDF'):
+                    print("✅ Valid PDF header found")
+                    content_length = len(response.content)
+                    print(f"✅ PDF size: {content_length} bytes")
+                else:
+                    success = False
+                    print("❌ Invalid PDF - missing PDF header")
+                
+                # Check Content-Disposition header for filename
+                content_disposition = response.headers.get('content-disposition', '')
+                if 'attachment' in content_disposition and '.pdf' in content_disposition:
+                    print(f"✅ Proper download headers: {content_disposition}")
+                else:
+                    print(f"⚠️  Warning: Content-Disposition header may be missing or incorrect: {content_disposition}")
+
+            if success:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+            else:
+                print(f"❌ Failed - Expected 200, got {response.status_code}")
+                if response.text:
+                    print(f"Response: {response.text[:200]}")
+
+            self.test_results.append({
+                "name": "Bill PDF Download",
+                "method": "GET",
+                "endpoint": f"api/bills/{bill_id}/pdf",
+                "expected_status": 200,
+                "actual_status": response.status_code,
+                "success": success,
+                "content_type": response.headers.get('content-type', ''),
+                "content_length": len(response.content) if response.content else 0
+            })
+
+            return success, {"content_type": response.headers.get('content-type', ''), "size": len(response.content)}
+
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
+            self.test_results.append({
+                "name": "Bill PDF Download",
+                "method": "GET", 
+                "endpoint": f"api/bills/{bill_id}/pdf",
+                "expected_status": 200,
+                "actual_status": "ERROR",
+                "success": False,
+                "error": str(e)
+            })
+            return False, {}
+
 def main():
     print("🚀 Starting Cafe POS API Tests...")
     print("=" * 50)
@@ -282,7 +356,12 @@ def main():
     if created_bill_id:
         get_bill_success, _ = tester.test_get_bill_by_id(created_bill_id)
     
-    # Test 9: Delete Menu Item (cleanup)
+    # Test 9: PDF Download (NEW FEATURE - if create was successful)
+    pdf_success = True
+    if created_bill_id:
+        pdf_success, _ = tester.test_bill_pdf_download(created_bill_id)
+    
+    # Test 10: Delete Menu Item (cleanup)
     delete_success = True
     if created_item_id:
         delete_success, _ = tester.test_delete_menu_item(created_item_id)
@@ -290,6 +369,14 @@ def main():
     # Print final results
     print("\n" + "=" * 50)
     print(f"📊 Tests completed: {tester.tests_passed}/{tester.tests_run} passed")
+    
+    # Special focus on PDF feature
+    if created_bill_id and pdf_success:
+        print("✅ PDF Export Feature: WORKING")
+    elif created_bill_id:
+        print("❌ PDF Export Feature: FAILED")
+    else:
+        print("⚠️  PDF Export Feature: COULD NOT TEST (no bill created)")
     
     if tester.tests_passed == tester.tests_run:
         print("🎉 All tests passed!")

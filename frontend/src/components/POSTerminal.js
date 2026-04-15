@@ -121,6 +121,13 @@ export default function POSTerminal() {
             <span className="text-cafe-success font-medium font-body text-sm">
               Bill {billSuccess.bill_number} created — ${billSuccess.total.toFixed(2)}
             </span>
+            <button
+              onClick={() => downloadBillPdf(billSuccess.id)}
+              data-testid="toast-download-pdf-btn"
+              className="ml-auto text-xs font-body font-semibold text-cafe-primary hover:text-cafe-primary-hover underline transition-colors"
+            >
+              Download PDF
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
