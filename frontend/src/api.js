@@ -18,5 +18,9 @@ export const deleteMenuItem = (id) => api.delete(`/api/menu-items/${id}`).then(r
 export const createBill = (data) => api.post('/api/bills', data).then(r => r.data);
 export const getBills = () => api.get('/api/bills').then(r => r.data);
 export const getBill = (id) => api.get(`/api/bills/${id}`).then(r => r.data);
+export const downloadBillPdf = (id) => {
+  const url = `${API_URL}/api/bills/${id}/pdf`;
+  window.open(url, '_blank');
+};
 
 export default api;

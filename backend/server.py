@@ -1,13 +1,16 @@
 import os
+import io
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
 from typing import Optional
 from bson import ObjectId
+from fpdf import FPDF
 
 load_dotenv()
 
@@ -169,3 +172,143 @@ async def get_bill(bill_id: str):
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
     return serialize_doc(bill)
+
+
+@app.get("/api/bills/{bill_id}/pdf")
+async def get_bill_pdf(bill_id: str):
+    bill = await app.db.bills.find_one({"_id": ObjectId(bill_id)})
+    if not bill:
+        raise HTTPException(status_code=404, detail="Bill not found")
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    w = pdf.w - 20  # usable width (margins 10 each side)
+
+    # --- Header ---
+    pdf.set_font("Helvetica", "B", 22)
+    pdf.cell(w, 12, "Cafe POS", ln=True, align="C")
+    pdf.set_font("Helvetica", "", 10)
+    pdf.set_text_color(120, 120, 120)
+    pdf.cell(w, 6, "Thank you for your order!", ln=True, align="C")
+    pdf.set_text_color(0, 0, 0)
+    pdf.ln(6)
+
+    # --- Divider ---
+    pdf.set_draw_color(200, 200, 200)
+    pdf.line(10, pdf.get_y(), 10 + w, pdf.get_y())
+    pdf.ln(6)
+
+    # --- Bill Info ---
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(120, 120, 120)
+    pdf.cell(w / 2, 5, "Bill Number", align="L")
+    pdf.cell(w / 2, 5, "Date", align="R", ln=True)
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.set_text_color(0, 0, 0)
+    bill_number = bill.get("bill_number", "N/A")
+    created_at = bill.get("created_at", "")
+    date_str = ""
+    if created_at:
+        try:
+            dt = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+            date_str = dt.strftime("%b %d, %Y %I:%M %p")
+        except Exception:
+            date_str = created_at
+    pdf.cell(w / 2, 6, bill_number, align="L")
+    pdf.cell(w / 2, 6, date_str, align="R", ln=True)
+
+    customer = bill.get("customer_name", "")
+    if customer:
+        pdf.ln(2)
+        pdf.set_font("Helvetica", "", 9)
+        pdf.set_text_color(120, 120, 120)
+        pdf.cell(15, 5, "Customer:")
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(0, 5, customer, ln=True)
+
+    pdf.ln(4)
+    pdf.set_draw_color(200, 200, 200)
+    pdf.dashed_line(10, pdf.get_y(), 10 + w, pdf.get_y(), 2, 2)
+    pdf.ln(4)
+
+    # --- Column Headers ---
+    pdf.set_font("Helvetica", "B", 9)
+    pdf.set_text_color(120, 120, 120)
+    col_item = w * 0.45
+    col_qty = w * 0.15
+    col_price = w * 0.2
+    col_total = w * 0.2
+    pdf.cell(col_item, 6, "ITEM", align="L")
+    pdf.cell(col_qty, 6, "QTY", align="C")
+    pdf.cell(col_price, 6, "PRICE", align="R")
+    pdf.cell(col_total, 6, "TOTAL", align="R", ln=True)
+    pdf.ln(2)
+    pdf.set_draw_color(220, 220, 220)
+    pdf.line(10, pdf.get_y(), 10 + w, pdf.get_y())
+    pdf.ln(3)
+
+    # --- Items ---
+    pdf.set_text_color(40, 40, 40)
+    for item in bill.get("items", []):
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(col_item, 7, item["name"][:28], align="L")
+        pdf.cell(col_qty, 7, str(item["quantity"]), align="C")
+        pdf.cell(col_price, 7, f"${item['price']:.2f}", align="R")
+        pdf.cell(col_total, 7, f"${item['price'] * item['quantity']:.2f}", align="R", ln=True)
+
+    pdf.ln(3)
+    pdf.set_draw_color(200, 200, 200)
+    pdf.dashed_line(10, pdf.get_y(), 10 + w, pdf.get_y(), 2, 2)
+    pdf.ln(4)
+
+    # --- Totals ---
+    totals_x = w * 0.55
+    totals_w = w * 0.45
+    pdf.set_font("Helvetica", "", 10)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(totals_x, 6, "", align="L")
+    pdf.cell(totals_w / 2, 6, "Subtotal", align="L")
+    pdf.cell(totals_w / 2, 6, f"${bill.get('subtotal', 0):.2f}", align="R", ln=True)
+
+    pdf.cell(totals_x, 6, "", align="L")
+    pdf.cell(totals_w / 2, 6, f"Tax ({bill.get('tax_rate', 0)}%)", align="L")
+    pdf.cell(totals_w / 2, 6, f"+${bill.get('tax_amount', 0):.2f}", align="R", ln=True)
+
+    if bill.get("discount_percent", 0) > 0:
+        pdf.set_text_color(80, 140, 80)
+        pdf.cell(totals_x, 6, "", align="L")
+        pdf.cell(totals_w / 2, 6, f"Discount ({bill['discount_percent']}%)", align="L")
+        pdf.cell(totals_w / 2, 6, f"-${bill.get('discount_amount', 0):.2f}", align="R", ln=True)
+
+    pdf.ln(2)
+    pdf.set_draw_color(40, 40, 40)
+    y_line = pdf.get_y()
+    pdf.line(10 + totals_x, y_line, 10 + w, y_line)
+    pdf.ln(3)
+
+    pdf.set_font("Helvetica", "B", 14)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(totals_x, 8, "", align="L")
+    pdf.cell(totals_w / 2, 8, "Total", align="L")
+    pdf.cell(totals_w / 2, 8, f"${bill.get('total', 0):.2f}", align="R", ln=True)
+
+    # --- Footer ---
+    pdf.ln(12)
+    pdf.set_draw_color(200, 200, 200)
+    pdf.dashed_line(10, pdf.get_y(), 10 + w, pdf.get_y(), 2, 2)
+    pdf.ln(6)
+    pdf.set_font("Helvetica", "I", 9)
+    pdf.set_text_color(150, 150, 150)
+    pdf.cell(w, 5, "Generated by Cafe POS Bill Generator", ln=True, align="C")
+
+    # Output
+    pdf_bytes = pdf.output()
+    buffer = io.BytesIO(pdf_bytes)
+    filename = f"{bill_number}.pdf"
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )

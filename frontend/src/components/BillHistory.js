@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getBills, getBill } from '../api';
+import { getBills, getBill, downloadBillPdf } from '../api';
 
 export default function BillHistory() {
   const [bills, setBills] = useState([]);
@@ -121,7 +121,14 @@ export default function BillHistory() {
                         <td className="px-5 py-4 font-body text-xs text-cafe-text-muted text-right">
                           {new Date(bill.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </td>
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-5 py-4 text-right flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => downloadBillPdf(bill.id)}
+                            data-testid={`download-bill-${bill.id}`}
+                            className="text-cafe-secondary hover:text-cafe-text text-sm font-body font-medium transition-colors"
+                          >
+                            PDF
+                          </button>
                           <button
                             onClick={() => viewBill(bill.id)}
                             data-testid={`view-bill-${bill.id}`}
@@ -212,6 +219,14 @@ function BillDetail({ bill, onPrint }) {
 
         {/* Actions */}
         <div className="mt-6 flex gap-3 no-print">
+          <button
+            onClick={() => downloadBillPdf(bill.id)}
+            data-testid="download-pdf-btn"
+            className="flex-1 py-3 rounded-2xl font-heading font-medium text-sm border border-cafe-border text-cafe-text hover:bg-cafe-bg transition-colors flex items-center justify-center gap-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </button>
           <button
             onClick={onPrint}
             data-testid="print-bill-btn"

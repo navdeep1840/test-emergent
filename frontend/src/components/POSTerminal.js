@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getMenuItems, getCategories, createBill } from '../api';
+import { getMenuItems, getCategories, createBill, downloadBillPdf } from '../api';
 import BillPanel from './BillPanel';
 
 export default function POSTerminal() {
